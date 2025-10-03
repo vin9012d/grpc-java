@@ -1,0 +1,21 @@
+# Maven target directory (compiled classes, jars, reports, etc.)
+/target/
+
+# Eclipse specific
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA specific
+*.iml
+.idea/
+
+# VS Code specific
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
