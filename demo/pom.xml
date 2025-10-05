@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.vinod</groupId>
@@ -8,21 +10,93 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>demo</name>
-  <url>http://www.example.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <protobuf.version>3.25.1</protobuf.version>
+    <grpc.version>1.60.0</grpc.version>
   </properties>
 
   <dependencies>
-    <!-- Add Protobuf Java dependency -->
+    <!-- Protobuf Java -->
+<!-- 
+    What it is:
+The core Protocol Buffers runtime library for Java.What's inside:
+
+Base classes for generated message classes
+Serialization engine (Java objects → binary bytes)
+Deserialization engine (binary bytes → Java objects)
+Builder pattern implementation
+Descriptor API (runtime reflection for messages) -->
+
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
       <version>${protobuf.version}</version>
+    </dependency>
+
+    <!-- gRPC dependencies -->
+<!-- What it is:
+The network transport layer for gRPC, built on top of Netty (a high-performance async I/O framework).
+What's inside:
+
+HTTP/2 client implementation (for gRPC clients)
+HTTP/2 server implementation (for gRPC servers)
+Connection management (pooling, keep-alive, retries)
+TLS/SSL support (encryption)
+Flow control (backpressure handling)
+Shaded Netty (avoids version conflicts with other Netty dependencies) -->
+
+    
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+     <!-- grpc-protobuf: The Bridge
+What it is:
+The glue between gRPC and protobuf - makes protobuf messages work with gRPC's transport layer.
+What it does:
+Teaches gRPC how to:
+
+Serialize protobuf messages before sending over network
+Deserialize protobuf messages after receiving from network
+Handle protobuf-specific metadata (descriptors)
+
+Only needed when using gRPC:
+You cannot use this library without gRPC - it's specifically for RPC calls. -->
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+<!-- What it is:
+Base classes and interfaces for generated gRPC stubs (both client and server).
+What's inside:
+
+AbstractStub - Base class for client stubs
+AbstractBlockingStub - Base for synchronous (blocking) stubs
+AbstractAsyncStub - Base for asynchronous stubs
+ServerCalls - Utilities for server-side RPC handling
+ClientCalls - Utilities for client-side RPC invocation
+StreamObserver - Interface for handling streaming responses -->
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>annotations-api</artifactId>
+      <version>6.0.53</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -34,27 +108,7 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <!-- Add Protobuf Maven Plugin -->
-      <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <configuration>
-          <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-
     <extensions>
-      <!-- OS Maven Plugin - helps detect your OS for protoc -->
       <extension>
         <groupId>kr.motd.maven</groupId>
         <artifactId>os-maven-plugin</artifactId>
@@ -62,45 +116,28 @@
       </extension>
     </extensions>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <configuration>
+          <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+          <outputDirectory>${project.build.directory}/generated-sources/protobuf/java</outputDirectory>
+          <clearOutputDirectory>false</clearOutputDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
